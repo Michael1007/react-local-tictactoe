@@ -58,15 +58,19 @@ function Board({ xIsNext, squares, onPlay }) {
 export default function Game() {
   const [xIsNext, setXIsNext] = useState(true);
   const [history, setHistory] = useState([Array(9).fill(null)]); //notice how this array with only one item, which itself if an array of 9 nulls
-  const currentSquares = history[history.length - 1]; //currentSquares is the last item in the history array, which is the current state of the board
+  const [currentMove, setCurrentMove] = useState(0);
+  const currentSquares = history[currentMove]; //currentSquares is the current state of the board
   
   function handlePlay(nextSquares) {
-    setHistory([...history, nextSquares]); //create a new array that contains all the items in the history array, plus the new nextSquares array
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]; //if we go back in time and then make a new move from that point, we want to discard all the "future" history that would now become incorrect
+    setHistory(nextHistory); 
+    setCurrentMove(nextHistory.length - 1); //the current move is now the last item in the history array, which is the new state of the board
     setXIsNext(!xIsNext);
   }
 
   function jumpTo(nextMove) {
-    //TODO
+    setCurrentMove(nextMove);
+    setXIsNext(nextMove % 2 === 0); //if the nextMove is even, then it's X's turn, otherwise it's O's turn
   }
 
   const moves = history.map((squares, move) => {
@@ -77,7 +81,7 @@ export default function Game() {
       description = "Go to game start";
     }
     return (
-      <li>
+      <li key={move}>
         <button onClick={() => jumpTo(move)}>{description}</button>
       </li>
     );
