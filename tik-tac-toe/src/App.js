@@ -8,9 +8,7 @@ function Square({value, onSquareClick}) {
   );
 }
 
-export default function Board() {
-  const [xIsNext, setXIsNext] = useState(true); //Setting X to go first always
-  const [squares, setSquares] = useState(Array(9).fill(null));
+function Board({ xIsNext, squares, onPlay }) {
 
   function handleClick(i) {
     if (squares[i] || calculateWinner(squares)) {
@@ -22,8 +20,7 @@ export default function Board() {
     } else {
       nextSquares[i] = "O";
     }
-    setSquares(nextSquares);
-    setXIsNext(!xIsNext);
+    onPlay(nextSquares);
   }
 
   //status section
@@ -55,6 +52,28 @@ export default function Board() {
         <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
       </div>
     </>
+  );
+}
+
+export default function Game() {
+  const [xIsNext, setXIsNext] = useState(true);
+  const [history, setHistory] = useState([Array(9).fill(null)]); //notice how this array with only one item, which itself if an array of 9 nulls
+  const currentSquares = history[history.length - 1]; //currentSquares is the last item in the history array, which is the current state of the board
+  
+  function handlePlay(nextSquares) {
+    setHistory([...history, nextSquares]); //create a new array that contains all the items in the history array, plus the new nextSquares array
+    setXIsNext(!xIsNext);
+  }
+
+  return (
+    <div className="game">
+      <div className="game-baord">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
+      </div>
+      <div className="game-info">
+        <ol>{/*TODO*/}</ol>
+      </div>
+    </div>
   );
 }
 
